@@ -1,430 +1,336 @@
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#171020">
-  <link rel="icon" href="data:,">
-  <title>ĐI NHẬU ONLINE - Trò chơi nhóm</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 18px; min-height: 100vh;
-      background: linear-gradient(135deg,#100d18,#291020,#111b35);
-      color: #fff; font-family: Arial, sans-serif;
-    }
-    .container { max-width: 680px; margin: auto; }
-    header { text-align: center; padding: 12px 8px 18px; }
-    h1 { color: #ffc83d; font-size: clamp(27px,6vw,38px); text-shadow: 0 0 20px #ff8c00; margin: 10px 0; }
-    h2 { margin-top: 0; }
-    .panel { background: #ffffff12; border: 1px solid #ffffff25; border-radius: 18px; padding: 18px; margin-bottom: 16px; }
-    input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #ffffff30; background: #171421; color: white; font-size: 16px; margin: 8px 0; }
-    button { border: 0; border-radius: 10px; padding: 13px 15px; font-size: 15px; font-weight: bold; cursor: pointer; margin: 5px 0; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
-    .primary { background: #ffc83d; color: #251500; width: 100%; }
-    .purple { background: #713bff; color: white; }
-    .green { background: #13b981; color: #06251b; }
-    .red { background: #ed476f; color: white; }
-    .hidden { display: none !important; }
-    .room-code { color: #ffc83d; font-size: 32px; font-weight: bold; letter-spacing: 6px; text-align: center; overflow-wrap: anywhere; }
-    .player { display: flex; justify-content: space-between; gap: 10px; background: #ffffff12; padding: 13px; margin: 7px 0; border-radius: 10px; }
-    .card { background: linear-gradient(135deg,#ffbc35,#ff683d); color: #281500; padding: 24px 18px; border-radius: 18px; text-align: center; min-height: 150px; }
-    .card p { font-size: 19px; font-weight: bold; }
-    .wheel { font-size: 70px; text-align: center; }
-    .chat-box { height: 210px; overflow-y: auto; background: #09081180; border-radius: 10px; padding: 12px; margin-bottom: 10px; overflow-wrap: anywhere; }
-    .chat-message { padding: 7px 0; border-bottom: 1px solid #ffffff12; }
-    .chat-message strong { color: #ffc83d; }
-    .flex { display: flex; gap: 8px; align-items: center; }
-    .flex input { flex: 1; min-width: 0; }
-    .small { color: #c5bdcf; font-size: 13px; }
-    .notice { color: #ffe3a0; font-size: 13px; line-height: 1.5; }
-    .actions { display: flex; flex-wrap: wrap; gap: 7px; }
-    .actions button { flex: 1 1 135px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#171020">
+<link rel="icon" href="data:,">
+<title>ĐI NHẬU ONLINE</title>
+<style>
+*{box-sizing:border-box}
+:root{--gold:#ffc83d;--purple:#8755ff;--panel:#ffffff12;--line:#ffffff25}
+body{margin:0;padding:16px;min-height:100vh;background:radial-gradient(circle at 15% 5%,#49213d 0,#171020 42%,#101a31 100%);color:#fff;font-family:Arial,sans-serif}
+.container{max-width:760px;margin:auto}
+header{text-align:center;padding:10px 8px 16px}
+h1{color:var(--gold);font-size:clamp(27px,6vw,38px);text-shadow:0 0 20px #ff8c00;margin:10px 0}
+h2{margin-top:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;backdrop-filter:blur(8px)}
+input,select{width:100%;padding:13px;border-radius:10px;border:1px solid #ffffff30;background:#171421;color:white;font-size:16px;margin:7px 0}
+button{border:0;border-radius:10px;padding:12px 14px;font-size:14px;font-weight:bold;cursor:pointer;margin:4px 0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--gold);color:#251500;width:100%}.purple{background:#713bff;color:white}.green{background:#13b981;color:#06251b}.red{background:#ed476f;color:white}
+.hidden{display:none!important}
+.small{color:#c5bdcf;font-size:13px;line-height:1.5}.notice{color:#ffe3a0;font-size:13px;line-height:1.5}
+.flex{display:flex;gap:8px;align-items:center}.flex input{flex:1;min-width:0}
+.room-code{color:var(--gold);font-size:32px;font-weight:bold;letter-spacing:6px;text-align:center;overflow-wrap:anywhere}
+.player{display:flex;justify-content:space-between;gap:10px;background:#ffffff12;padding:13px;margin:7px 0;border-radius:10px}
+.card{background:linear-gradient(135deg,#ffbc35,#ff683d);color:#281500;padding:24px 18px;border-radius:18px;text-align:center;min-height:150px}
+.card p{font-size:19px;font-weight:bold}
+.wheel{font-size:70px;text-align:center}
+.chat-box{height:210px;overflow-y:auto;background:#09081180;border-radius:10px;padding:12px;margin-bottom:10px;overflow-wrap:anywhere}
+.chat-message{padding:7px 0;border-bottom:1px solid #ffffff12}.chat-message strong{color:var(--gold)}
+.actions{display:flex;flex-wrap:wrap;gap:7px}.actions button{flex:1 1 135px}
+.profile-top{display:flex;align-items:center;gap:14px}
+.avatar-big{width:90px;height:90px;border-radius:22px;background:linear-gradient(145deg,#7047c7,#e56ca5);display:grid;place-items:center;font-size:52px;flex:none;border:2px solid #ffffff55;box-shadow:0 8px 24px #0005}
+.profile-meta{flex:1;min-width:0}.profile-meta h2{margin:0 0 6px;overflow-wrap:anywhere}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.stat{background:#09081180;border:1px solid #ffffff18;border-radius:10px;padding:8px 10px;font-size:13px}
+.section-title{font-size:13px;color:#d9c9ff;font-weight:bold;margin:15px 0 8px;text-transform:uppercase;letter-spacing:.5px}
+.choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.choice{background:#ffffff0d;border:1px solid #ffffff25;color:white;border-radius:12px;padding:12px 7px;min-height:72px;margin:0}
+.choice .symbol{display:block;font-size:27px;margin-bottom:5px}.choice span:last-child{font-size:12px}
+.choice.active{border:2px solid var(--gold);background:#ffc83d20;box-shadow:0 0 14px #ffc83d33}
+.gender-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gender{padding:15px 8px;border:1px solid #ffffff30;background:#ffffff0d;color:white;border-radius:14px}
+.gender .symbol{font-size:40px;display:block;margin-bottom:5px}
+.creator-preview{display:flex;align-items:center;gap:14px;padding:14px;background:linear-gradient(120deg,#56308c88,#b13c7766);border:1px solid #ffffff25;border-radius:16px}
+.creator-preview .avatar-big{width:105px;height:105px}
+.creator-preview strong{font-size:17px}
+.creator-actions{display:flex;gap:8px}.creator-actions button{flex:1}
+hr{border:0;border-top:1px solid #ffffff25;margin:20px 0}
+@media(max-width:480px){body{padding:10px}.panel{padding:14px}.choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.avatar-big{width:76px;height:76px;font-size:43px}.creator-preview .avatar-big{width:88px;height:88px}}
+</style>
 </head>
 <body>
 <div class="container">
-  <header>
-    <h1>🎉 ĐI NHẬU ONLINE</h1>
-    <p>Hội tụ bạn bè - vui cùng thử thách!</p>
-    <p id="connection" class="small">Đang kết nối Firebase...</p>
-  </header>
+<header>
+<h1>🎉 ĐI NHẬU ONLINE</h1>
+<p>Đi một mình cũng vui – Đi cùng hội càng vui!</p>
+<p id="connection" class="small">Đang kết nối Firebase...</p>
+</header>
 
-  <section id="home">
-    <div class="panel">
-      <h2>🎮 TẠO PHÒNG</h2>
-      <input id="playerName" placeholder="Tên người chơi" maxlength="24" autocomplete="nickname">
-      <button class="primary" id="createBtn" disabled>TẠO PHÒNG MỚI</button>
-      <hr style="border-color:#ffffff25;margin:20px 0">
-      <h2>🚪 THAM GIA PHÒNG</h2>
-      <input id="roomCodeInput" placeholder="Nhập mã phòng (6 ký tự)" maxlength="6" autocomplete="off">
-      <button class="primary" id="joinBtn" disabled>THAM GIA NGAY</button>
-      <p class="notice">Trò chơi gồm câu hỏi vui, thử thách biểu diễn và tính điểm. Mọi thử thách đều có thể bỏ qua; không cần sử dụng đồ uống có cồn.</p>
-    </div>
-  </section>
-
-  <section id="game" class="hidden">
-    <div class="panel">
-      <h2>🏠 PHÒNG CHƠI</h2>
-      <div class="room-code" id="roomCode"></div>
-      <button class="primary" id="copyBtn">📋 SAO CHÉP MÃ PHÒNG</button>
-      <p id="roomStatus" class="small"></p>
-    </div>
-
-    <div class="panel">
-      <h2>👥 NGƯỜI CHƠI</h2>
-      <div id="playersList"></div>
-    </div>
-
-    <div class="panel">
-      <h2>🎡 VÒNG QUAY MAY MẮN</h2>
-      <div class="wheel">🎡</div>
-      <h2 id="selectedPlayer" style="text-align:center;color:#ffc83d">Chờ lựa chọn...</h2>
-    </div>
-
-    <div class="panel hidden" id="hostPanel">
-      <h2>🎮 ĐIỀU KHIỂN (CHỦ PHÒNG)</h2>
-      <div class="actions">
-        <button class="green" id="startBtn">🚀 BẮT ĐẦU</button>
-        <button class="purple" id="spinBtn">🎡 QUAY CHỌN NGƯỜI</button>
-        <button class="primary" id="drawBtn">🎴 BỐC THẺ</button>
-        <button class="green" id="completeBtn">🏆 HOÀN THÀNH (+1 ĐIỂM)</button>
-        <button class="red" id="skipBtn">BỎ QUA</button>
+<section id="profileSection" class="panel hidden">
+  <div class="profile-top">
+    <div class="avatar-big" id="profileAvatar">🧑🏻</div>
+    <div class="profile-meta">
+      <h2 id="profileNickname">Nhân vật của tôi</h2>
+      <div class="small" id="profileStyle">Chưa chọn phong cách</div>
+      <div class="stats">
+        <div class="stat">🪙 <b id="profileCoins">1.000</b></div>
+        <div class="stat">⭐ Cấp <b id="profileLevel">1</b></div>
+        <div class="stat">✨ <b id="profileXp">0</b> XP</div>
       </div>
     </div>
+  </div>
+  <button class="purple" id="editProfileBtn">✏️ CHỈNH SỬA NHÂN VẬT</button>
+</section>
 
-    <div class="panel">
-      <h2>🎴 THỬ THÁCH</h2>
-      <div class="card">
-        <h2 id="cardCategory">🎉 SẴN SÀNG?</h2>
-        <p id="cardText">Chờ chủ phòng bốc thẻ...</p>
-      </div>
-    </div>
+<section id="creator" class="panel hidden">
+  <h2 id="creatorHeading">✨ TẠO NHÂN VẬT</h2>
+  <p class="small">Tạo diện mạo riêng cho bạn. Thông tin sẽ được lưu vào tài khoản Firebase.</p>
+  <label for="nicknameInput" class="section-title">Nickname</label>
+  <input id="nicknameInput" maxlength="24" placeholder="Nhập tên nhân vật (2–24 ký tự)" autocomplete="nickname">
+  <div class="creator-preview">
+    <div class="avatar-big" id="previewAvatar">👨🏻</div>
+    <div><strong id="previewName">Nhân vật mới</strong><div class="small" id="previewDescription">Phong cách năng động</div></div>
+  </div>
 
-    <div class="panel">
-      <h2>🏆 BẢNG XẾP HẠNG</h2>
-      <div id="ranking"></div>
-    </div>
+  <div class="section-title">1. Chọn nhân vật</div>
+  <div class="gender-grid">
+    <button class="gender active" data-gender="male"><span class="symbol">👨🏻‍🦱</span>Nam</button>
+    <button class="gender" data-gender="female"><span class="symbol">👩🏻‍🦰</span>Nữ</button>
+  </div>
 
-    <div class="panel">
-      <h2>💬 CHAT TRỰC TUYẾN</h2>
-      <div class="chat-box" id="chatBox"></div>
-      <div class="flex">
-        <input id="chatInput" placeholder="Nhập tin nhắn..." maxlength="300">
-        <button class="purple" id="sendBtn">GỬI</button>
-      </div>
-    </div>
-    <button class="red" id="leaveBtn" style="width:100%">RỜI PHÒNG</button>
-  </section>
+  <div class="section-title">2. Kiểu tóc</div>
+  <div class="choice-grid" id="hairChoices">
+    <button class="choice active" data-value="Tóc ngắn"><span class="symbol">💇🏻‍♂️</span><span>Tóc ngắn</span></button>
+    <button class="choice" data-value="Tóc vuốt"><span class="symbol">🧑🏻‍🦱</span><span>Tóc vuốt</span></button>
+    <button class="choice" data-value="Tóc xoăn"><span class="symbol">🦱</span><span>Tóc xoăn</span></button>
+  </div>
+
+  <div class="section-title">3. Trang phục</div>
+  <div class="choice-grid" id="outfitChoices">
+    <button class="choice active" data-value="Áo thun năng động"><span class="symbol">👕</span><span>Áo thun</span></button>
+    <button class="choice" data-value="Sơ mi thanh lịch"><span class="symbol">👔</span><span>Sơ mi</span></button>
+    <button class="choice" data-value="Áo khoác cá tính"><span class="symbol">🧥</span><span>Áo khoác</span></button>
+  </div>
+
+  <div class="section-title">4. Phụ kiện</div>
+  <div class="choice-grid" id="accessoryChoices">
+    <button class="choice active" data-value="Không phụ kiện"><span class="symbol">✨</span><span>Không có</span></button>
+    <button class="choice" data-value="Kính thời trang"><span class="symbol">🕶️</span><span>Kính</span></button>
+    <button class="choice" data-value="Đồng hồ"><span class="symbol">⌚</span><span>Đồng hồ</span></button>
+  </div>
+  <p class="notice">Nhân vật và vật phẩm ở phiên bản đầu là lựa chọn trang trí. Tiền ảo và cấp độ được lưu riêng, không bị đặt lại khi chỉnh sửa ngoại hình.</p>
+  <div class="creator-actions">
+    <button class="primary" id="saveProfileBtn">💾 LƯU NHÂN VẬT</button>
+    <button class="red hidden" id="cancelEditBtn">HỦY</button>
+  </div>
+</section>
+
+<section id="home" class="hidden">
+<div class="panel">
+<h2>🎮 TẠO PHÒNG</h2>
+<input id="playerName" placeholder="Tên người chơi" maxlength="24" autocomplete="nickname">
+<button class="primary" id="createBtn" disabled>TẠO PHÒNG MỚI</button>
+<hr>
+<h2>🚪 THAM GIA PHÒNG</h2>
+<input id="roomCodeInput" placeholder="Nhập mã phòng (6 ký tự)" maxlength="6" autocomplete="off">
+<button class="primary" id="joinBtn" disabled>THAM GIA NGAY</button>
+<p class="notice">Trò chơi gồm câu hỏi vui, thử thách biểu diễn và tính điểm. Mọi thử thách đều có thể bỏ qua; không cần sử dụng đồ uống có cồn.</p>
+</div>
+</section>
+
+<section id="game" class="hidden">
+<div class="panel"><h2>🏠 PHÒNG CHƠI</h2><div class="room-code" id="roomCode"></div><button class="primary" id="copyBtn">📋 SAO CHÉP MÃ PHÒNG</button><p id="roomStatus" class="small"></p></div>
+<div class="panel"><h2>👥 NGƯỜI CHƠI</h2><div id="playersList"></div></div>
+<div class="panel"><h2>🎡 VÒNG QUAY MAY MẮN</h2><div class="wheel">🎡</div><h2 id="selectedPlayer" style="text-align:center;color:#ffc83d">Chờ lựa chọn...</h2></div>
+<div class="panel hidden" id="hostPanel"><h2>🎮 ĐIỀU KHIỂN (CHỦ PHÒNG)</h2><div class="actions">
+<button class="green" id="startBtn">🚀 BẮT ĐẦU</button><button class="purple" id="spinBtn">🎡 QUAY CHỌN NGƯỜI</button><button class="primary" id="drawBtn">🎴 BỐC THẺ</button><button class="green" id="completeBtn">🏆 HOÀN THÀNH (+1 ĐIỂM)</button><button class="red" id="skipBtn">BỎ QUA</button>
+</div></div>
+<div class="panel"><h2>🎴 THỬ THÁCH</h2><div class="card"><h2 id="cardCategory">🎉 SẴN SÀNG?</h2><p id="cardText">Chờ chủ phòng bốc thẻ...</p></div></div>
+<div class="panel"><h2>🏆 BẢNG XẾP HẠNG</h2><div id="ranking"></div></div>
+<div class="panel"><h2>💬 CHAT TRỰC TUYẾN</h2><div class="chat-box" id="chatBox"></div><div class="flex"><input id="chatInput" placeholder="Nhập tin nhắn..." maxlength="300"><button class="purple" id="sendBtn">GỬI</button></div></div>
+<button class="red" id="leaveBtn" style="width:100%">RỜI PHÒNG</button>
+</section>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth, signInAnonymously, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, setDoc, updateDoc,
-  collection, addDoc, query, orderBy, limit,
-  onSnapshot, serverTimestamp, increment
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInAnonymously,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,doc,getDoc,setDoc,updateDoc,collection,addDoc,query,orderBy,limit,onSnapshot,serverTimestamp,increment} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCsl1Qtam9q2hBjJasHoUl_n9x4xCr52Vs",
-  authDomain: "di-nhau-online.firebaseapp.com",
-  projectId: "di-nhau-online",
-  storageBucket: "di-nhau-online.firebasestorage.app",
-  messagingSenderId: "230423160986",
-  appId: "1:230423160986:web:1d20629b07441d8d10d723",
-  measurementId: "G-KSXRG0YVM7"
+const firebaseConfig={
+ apiKey:"AIzaSyCslQtam9q2hBjJasHoUl_n9x4xCr52Vs",
+ authDomain:"di-nhau-online.firebaseapp.com",
+ projectId:"di-nhau-online",
+ storageBucket:"di-nhau-online.firebasestorage.app",
+ messagingSenderId:"230423160986",
+ appId:"1:230423160986:web:1d20629b07441d8d10d723",
+ measurementId:"G-KSXRG0YVM7"
 };
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const $ = id => document.getElementById(id);
-
-let user = null;
-let roomCode = null;
-let myName = "";
-let roomData = null;
-let players = [];
-let unsubRoom = null;
-let unsubPlayers = null;
-let unsubMessages = null;
-
-const cards = [
-  ["😂 GIẢI TRÍ", "Kể một câu chuyện hài hước nhất của bạn!"],
-  ["🎯 THỬ THÁCH", "Hát một đoạn nhạc trong 10 giây!"],
-  ["❓ HỎI ĐÁP", "Nếu được du lịch miễn phí, bạn muốn đến đâu?"],
-  ["🎲 MAY MẮN", "Bạn được cộng 2 điểm!"],
-  ["😂 GIẢI TRÍ", "Hãy giả giọng một nhân vật hoạt hình!"],
-  ["🎯 THỬ THÁCH", "Kể tên 5 món ăn Việt Nam trong 10 giây!"],
-  ["❓ HỎI ĐÁP", "Kỷ niệm đáng nhớ nhất với hội bạn?"],
-  ["🎲 MAY MẮN", "Chọn một người cùng nhận 1 điểm!"],
-  ["😂 GIẢI TRÍ", "Nói một câu đùa khiến cả nhóm bật cười!"],
-  ["🎯 THỬ THÁCH", "Đọc một câu bằng giọng MC truyền hình!"],
-  ["❓ HỎI ĐÁP", "Nếu có một ngày nghỉ hoàn toàn, bạn sẽ làm gì?"],
-  ["🎲 MAY MẮN", "Bạn được quyền chọn người tiếp theo!"]
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);
+let user=null,roomCode=null,myName="",roomData=null,players=[],profile=null;
+let unsubRoom=null,unsubPlayers=null,unsubMessages=null;
+let selection={gender:"male",hair:"Tóc ngắn",outfit:"Áo thun năng động",accessory:"Không phụ kiện"};
+const cards=[
+["😂 GIẢI TRÍ","Kể một câu chuyện hài hước nhất của bạn!"],
+["🎯 THỬ THÁCH","Hát một đoạn nhạc trong 10 giây!"],
+["❓ HỎI ĐÁP","Nếu được du lịch miễn phí, bạn muốn đến đâu?"],
+["🎲 MAY MẮN","Bạn được cộng 2 điểm!"],
+["😂 GIẢI TRÍ","Hãy giả giọng một nhân vật hoạt hình!"],
+["🎯 THỬ THÁCH","Kể tên 5 món ăn Việt Nam trong 10 giây!"],
+["❓ HỎI ĐÁP","Kỷ niệm đáng nhớ nhất với hội bạn?"],
+["🎲 MAY MẮN","Chọn một người cùng nhận 1 điểm!"],
+["😂 GIẢI TRÍ","Nói một câu đùa khiến cả nhóm bật cười!"],
+["🎯 THỬ THÁCH","Đọc một câu bằng giọng MC truyền hình!"],
+["❓ HỎI ĐÁP","Nếu có một ngày nghỉ hoàn toàn, bạn sẽ làm gì?"],
+["🎲 MAY MẮN","Bạn được quyền chọn người tiếp theo!"]
 ];
+function showError(error){console.error(error);const code=error?.code||"unknown";$("connection").textContent="❌ "+code;alert("Có lỗi Firebase: "+code+"\n"+(error?.message||"Vui lòng thử lại."));}
+function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function avatarFor(p){return p?.character?.gender==="female"?"👩🏻‍🦰":"👨🏻‍🦱";}
+function styleText(p){const c=p?.character||{};return [c.hair,c.outfit,c.accessory].filter(Boolean).join(" · ");}
+function renderProfile(){
+ if(!profile)return;
+ $("profileSection").classList.remove("hidden");
+ $("profileAvatar").textContent=avatarFor(profile);
+ $("profileNickname").textContent=profile.nickname||"Người chơi";
+ $("profileStyle").textContent=styleText(profile)||"Phong cách mặc định";
+ $("profileCoins").textContent=Number(profile.coins??1000).toLocaleString("vi-VN");
+ $("profileLevel").textContent=Number(profile.level??1);
+ $("profileXp").textContent=Number(profile.experience??0);
+ $("playerName").value=profile.nickname||"";
+}
+function setChoice(groupId,key,value){
+ selection[key]=value;
+ $(groupId).querySelectorAll(".choice").forEach(b=>b.classList.toggle("active",b.dataset.value===value));
+ updatePreview();
+}
+function updatePreview(){
+ const female=selection.gender==="female";
+ $("previewAvatar").textContent=female?"👩🏻‍🦰":"👨🏻‍🦱";
+ $("previewName").textContent=$("nicknameInput").value.trim()||"Nhân vật mới";
+ $("previewDescription").textContent=[selection.hair,selection.outfit,selection.accessory].join(" · ");
+}
+function openCreator(editing){
+ $("creator").classList.remove("hidden");$("home").classList.add("hidden");$("profileSection").classList.add("hidden");
+ $("creatorHeading").textContent=editing?"✏️ CHỈNH SỬA NHÂN VẬT":"✨ TẠO NHÂN VẬT";
+ $("cancelEditBtn").classList.toggle("hidden",!editing);
+ const c=profile?.character||{};
+ selection={gender:c.gender||"male",hair:c.hair||"Tóc ngắn",outfit:c.outfit||"Áo thun năng động",accessory:c.accessory||"Không phụ kiện"};
+ $("nicknameInput").value=profile?.nickname||"";
+ document.querySelectorAll("[data-gender]").forEach(b=>b.classList.toggle("active",b.dataset.gender===selection.gender));
+ setChoice("hairChoices","hair",selection.hair);setChoice("outfitChoices","outfit",selection.outfit);setChoice("accessoryChoices","accessory",selection.accessory);
+}
+function showLobby(){
+ $("creator").classList.add("hidden");$("home").classList.remove("hidden");$("profileSection").classList.remove("hidden");
+ if(profile)renderProfile();
+}
+async function loadProfile(){
+ const snap=await getDoc(doc(db,"users",user.uid));
+ if(snap.exists()){profile=snap.data();renderProfile();showLobby();}
+ else{profile=null;openCreator(false);}
+}
+$("editProfileBtn").onclick=()=>openCreator(true);
+$("cancelEditBtn").onclick=()=>{if(profile)showLobby();};
+$("nicknameInput").addEventListener("input",updatePreview);
+document.querySelectorAll("[data-gender]").forEach(b=>b.onclick=()=>{
+ selection.gender=b.dataset.gender;
+ document.querySelectorAll("[data-gender]").forEach(x=>x.classList.toggle("active",x===b));updatePreview();
+});
+$("hairChoices").querySelectorAll(".choice").forEach(b=>b.onclick=()=>setChoice("hairChoices","hair",b.dataset.value));
+$("outfitChoices").querySelectorAll(".choice").forEach(b=>b.onclick=()=>setChoice("outfitChoices","outfit",b.dataset.value));
+$("accessoryChoices").querySelectorAll(".choice").forEach(b=>b.onclick=()=>setChoice("accessoryChoices","accessory",b.dataset.value));
+$("saveProfileBtn").onclick=async()=>{
+ try{
+  if(!user)throw new Error("Bạn chưa đăng nhập Firebase.");
+  const nickname=$("nicknameInput").value.trim();
+  if(nickname.length<2||nickname.length>24)return alert("Nickname cần từ 2 đến 24 ký tự.");
+  $("saveProfileBtn").disabled=true;
+  const ref=doc(db,"users",user.uid),old=await getDoc(ref),oldData=old.exists()?old.data():{};
+  const next={
+   uid:user.uid,nickname,
+   character:{gender:selection.gender,hair:selection.hair,outfit:selection.outfit,accessory:selection.accessory},
+   coins:Number(oldData.coins??1000),level:Number(oldData.level??1),experience:Number(oldData.experience??0),
+   createdAt:oldData.createdAt||serverTimestamp(),updatedAt:serverTimestamp()
+  };
+  await setDoc(ref,next,{merge:true});profile={...oldData,...next};
+  renderProfile();showLobby();$("connection").textContent="🟢 Đã lưu nhân vật lên Firebase";
+ }catch(e){showError(e);}finally{$("saveProfileBtn").disabled=false;}
+};
 
-function showError(error) {
-  console.error(error);
-  const code = error?.code || "unknown";
-  $("connection").textContent = "❌ " + code;
-  alert("Có lỗi Firebase: " + code + "\n" + (error?.message || "Vui lòng thử lại."));
-}
-function isHost() { return Boolean(roomData && user && roomData.hostUid === user.uid); }
-function randomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
-}
-function stopListeners() {
-  if (unsubRoom) unsubRoom();
-  if (unsubPlayers) unsubPlayers();
-  if (unsubMessages) unsubMessages();
-  unsubRoom = unsubPlayers = unsubMessages = null;
-}
-function showGame() {
-  $("home").classList.add("hidden");
-  $("game").classList.remove("hidden");
-  $("roomCode").textContent = roomCode || "";
-}
-function showHome() {
-  stopListeners();
-  roomCode = null;
-  roomData = null;
-  players = [];
-  $("game").classList.add("hidden");
-  $("home").classList.remove("hidden");
-}
-function renderPlayers() {
-  const html = players.map(p => `
-    <div class="player">
-      <span>${escapeHtml(p.name || "Người chơi")} ${p.uid === roomData?.hostUid ? "👑" : ""} ${p.online === false ? "(đã rời)" : ""}</span>
-      <strong>${Number(p.score || 0)} điểm</strong>
-    </div>`).join("");
-  $("playersList").innerHTML = html || '<p class="small">Chưa có người chơi.</p>';
-  const sorted = [...players].sort((a,b) => Number(b.score || 0) - Number(a.score || 0));
-  $("ranking").innerHTML = sorted.map((p,i) =>
-    `<div class="player"><span>${i+1}. ${escapeHtml(p.name || "Người chơi")}</span><strong>${Number(p.score || 0)} điểm</strong></div>`
-  ).join("") || '<p class="small">Chưa có dữ liệu.</p>';
-}
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, c => ({
-    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
-  }[c]));
-}
-function listenRoom(code) {
-  stopListeners();
-  roomCode = code;
-  showGame();
-
-  unsubRoom = onSnapshot(doc(db, "rooms", code), snap => {
-    if (!snap.exists()) {
-      alert("Phòng này không còn tồn tại.");
-      showHome();
-      return;
-    }
-    roomData = snap.data();
-    $("roomStatus").textContent = roomData.status === "playing" ? "Trạng thái: Đang chơi" : "Trạng thái: Đang chờ";
-    $("hostPanel").classList.toggle("hidden", !isHost());
-    $("selectedPlayer").textContent = roomData.lastSelectedName || "Chờ lựa chọn...";
-    if (roomData.currentCard) {
-      $("cardCategory").textContent = roomData.currentCard.category || "THỬ THÁCH";
-      $("cardText").textContent = roomData.currentCard.text || "";
-    } else {
-      $("cardCategory").textContent = "🎉 SẴN SÀNG?";
-      $("cardText").textContent = "Chờ chủ phòng bốc thẻ...";
-    }
-  }, showError);
-
-  unsubPlayers = onSnapshot(collection(db, "rooms", code, "players"), snap => {
-    players = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
-    renderPlayers();
-  }, showError);
-
-  const messagesQuery = query(
-    collection(db, "rooms", code, "messages"),
-    orderBy("createdAt", "asc"), limit(100)
-  );
-  unsubMessages = onSnapshot(messagesQuery, snap => {
-    $("chatBox").innerHTML = snap.docs.map(d => {
-      const m = d.data();
-      return `<div class="chat-message"><strong>${escapeHtml(m.name || "Người chơi")}:</strong> ${escapeHtml(m.text || "")}</div>`;
-    }).join("");
-    $("chatBox").scrollTop = $("chatBox").scrollHeight;
-  }, showError);
-}
-
-// Đăng nhập ẩn danh
-$("connection").textContent = "🔄 Đang đăng nhập...";
+// Firebase authentication and profile loading
+$("connection").textContent="🔄 Đang đăng nhập...";
 signInAnonymously(auth).catch(showError);
-onAuthStateChanged(auth, currentUser => {
-  user = currentUser;
-  if (currentUser) {
-    $("connection").textContent = "🟢 Đã kết nối Firebase";
-    $("createBtn").disabled = false;
-    $("joinBtn").disabled = false;
-  } else {
-    $("connection").textContent = "🔄 Đang đăng nhập...";
-    $("createBtn").disabled = true;
-    $("joinBtn").disabled = true;
-  }
+onAuthStateChanged(auth,async currentUser=>{
+ user=currentUser;
+ if(!currentUser){$("connection").textContent="🔄 Đang đăng nhập...";return;}
+ $("connection").textContent="🟢 Đã kết nối Firebase – đang tải hồ sơ...";
+ try{await loadProfile();$("connection").textContent="🟢 Đã kết nối Firebase";}
+ catch(e){showError(e);}
 });
 
-// Tạo phòng mới
-$("createBtn").onclick = async () => {
-  try {
-    if (!user) throw new Error("Bạn chưa đăng nhập Firebase.");
-    myName = $("playerName").value.trim();
-    if (!myName) return alert("Bạn hãy nhập tên người chơi.");
-
-    $("createBtn").disabled = true;
-    let code = randomCode();
-    let attempts = 0;
-    while ((await getDoc(doc(db, "rooms", code))).exists() && attempts < 10) {
-      code = randomCode();
-      attempts++;
-    }
-    if ((await getDoc(doc(db, "rooms", code))).exists()) throw new Error("Không tạo được mã phòng, hãy thử lại.");
-
-    await setDoc(doc(db, "rooms", code), {
-      code, hostUid: user.uid, hostName: myName,
-      status: "waiting", createdAt: serverTimestamp(),
-      currentCard: null, lastSelectedUid: null, lastSelectedName: ""
-    });
-    await setDoc(doc(db, "rooms", code, "players", user.uid), {
-      uid: user.uid, name: myName, score: 0, online: true,
-      joinedAt: serverTimestamp()
-    });
-    listenRoom(code);
-  } catch (e) {
-    showError(e);
-  } finally {
-    $("createBtn").disabled = !user;
-  }
+// Multiplayer room logic from the current version
+function isHost(){return Boolean(roomData&&user&&roomData.hostUid===user.uid);}
+function randomCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let code="";for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)];return code;}
+function stopListeners(){if(unsubRoom)unsubRoom();if(unsubPlayers)unsubPlayers();if(unsubMessages)unsubMessages();unsubRoom=unsubPlayers=unsubMessages=null;}
+function showGame(){$("home").classList.add("hidden");$("profileSection").classList.add("hidden");$("game").classList.remove("hidden");$("roomCode").textContent=roomCode||"";}
+function showHome(){stopListeners();roomCode=null;roomData=null;players=[];$("game").classList.add("hidden");showLobby();}
+function renderPlayers(){
+ $("playersList").innerHTML=players.map(p=>`<div class="player"><span>${escapeHtml(p.name||"Người chơi")} ${p.uid===roomData?.hostUid?"👑":""} ${p.online===false?"(đã rời)":""}</span><strong>${Number(p.score||0)} điểm</strong></div>`).join("")||'<p class="small">Chưa có người chơi.</p>';
+ const sorted=[...players].sort((a,b)=>Number(b.score||0)-Number(a.score||0));
+ $("ranking").innerHTML=sorted.map((p,i)=>`<div class="player"><span>${i+1}. ${escapeHtml(p.name||"Người chơi")}</span><strong>${Number(p.score||0)} điểm</strong></div>`).join("")||'<p class="small">Chưa có dữ liệu.</p>';
+}
+function listenRoom(code){
+ stopListeners();roomCode=code;showGame();
+ unsubRoom=onSnapshot(doc(db,"rooms",code),snap=>{
+  if(!snap.exists()){alert("Phòng này không còn tồn tại.");showHome();return;}
+  roomData=snap.data();$("roomStatus").textContent=roomData.status==="playing"?"Trạng thái: Đang chơi":"Trạng thái: Đang chờ";
+  $("hostPanel").classList.toggle("hidden",!isHost());$("selectedPlayer").textContent=roomData.lastSelectedName||"Chờ lựa chọn...";
+  if(roomData.currentCard){$("cardCategory").textContent=roomData.currentCard.category||"THỬ THÁCH";$("cardText").textContent=roomData.currentCard.text||"";}
+  else{$("cardCategory").textContent="🎉 SẴN SÀNG?";$("cardText").textContent="Chờ chủ phòng bốc thẻ...";}
+ },showError);
+ unsubPlayers=onSnapshot(collection(db,"rooms",code,"players"),snap=>{players=snap.docs.map(d=>({uid:d.id,...d.data()}));renderPlayers();},showError);
+ const mq=query(collection(db,"rooms",code,"messages"),orderBy("createdAt","asc"),limit(100));
+ unsubMessages=onSnapshot(mq,snap=>{$("chatBox").innerHTML=snap.docs.map(d=>{const m=d.data();return `<div class="chat-message"><strong>${escapeHtml(m.name||"Người chơi")}:</strong> ${escapeHtml(m.text||"")}</div>`;}).join("");$("chatBox").scrollTop=$("chatBox").scrollHeight;},showError);
+}
+$("createBtn").onclick=async()=>{
+ try{
+  if(!user||!profile)throw new Error("Bạn cần tạo nhân vật trước.");
+  myName=profile.nickname;
+  $("createBtn").disabled=true;
+  let code=randomCode(),attempts=0;
+  while((await getDoc(doc(db,"rooms",code))).exists()&&attempts<10){code=randomCode();attempts++;}
+  if((await getDoc(doc(db,"rooms",code))).exists())throw new Error("Không tạo được mã phòng, hãy thử lại.");
+  await setDoc(doc(db,"rooms",code),{code,hostUid:user.uid,hostName:myName,status:"waiting",createdAt:serverTimestamp(),currentCard:null,lastSelectedUid:null,lastSelectedName:""});
+  await setDoc(doc(db,"rooms",code,"players",user.uid),{uid:user.uid,name:myName,score:0,online:true,joinedAt:serverTimestamp()});
+  listenRoom(code);
+ }catch(e){showError(e);}finally{$("createBtn").disabled=!user;}
 };
-
-// Tham gia phòng
-$("joinBtn").onclick = async () => {
-  try {
-    if (!user) throw new Error("Bạn chưa đăng nhập Firebase.");
-    myName = $("playerName").value.trim();
-    const code = $("roomCodeInput").value.trim().toUpperCase();
-    if (!myName) return alert("Bạn hãy nhập tên người chơi.");
-    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) return alert("Mã phòng cần gồm 6 ký tự.");
-    $("joinBtn").disabled = true;
-
-    const roomSnap = await getDoc(doc(db, "rooms", code));
-    if (!roomSnap.exists()) return alert("Không tìm thấy phòng. Hãy kiểm tra lại mã.");
-    await setDoc(doc(db, "rooms", code, "players", user.uid), {
-      uid: user.uid, name: myName, score: 0, online: true,
-      joinedAt: serverTimestamp()
-    }, { merge: true });
-    listenRoom(code);
-  } catch (e) {
-    showError(e);
-  } finally {
-    $("joinBtn").disabled = !user;
-  }
+$("joinBtn").onclick=async()=>{
+ try{
+  if(!user||!profile)throw new Error("Bạn cần tạo nhân vật trước.");
+  myName=profile.nickname;const code=$("roomCodeInput").value.trim().toUpperCase();
+  if(!/^[A-HJ-NP-Z2-9]{6}$/.test(code))return alert("Mã phòng cần gồm 6 ký tự.");
+  $("joinBtn").disabled=true;const roomSnap=await getDoc(doc(db,"rooms",code));
+  if(!roomSnap.exists())return alert("Không tìm thấy phòng. Hãy kiểm tra lại mã.");
+  await setDoc(doc(db,"rooms",code,"players",user.uid),{uid:user.uid,name:myName,score:0,online:true,joinedAt:serverTimestamp()},{merge:true});
+  listenRoom(code);
+ }catch(e){showError(e);}finally{$("joinBtn").disabled=!user;}
 };
-
-// Điều khiển chủ phòng
-$("startBtn").onclick = async () => {
-  try {
-    if (!isHost()) return;
-    await updateDoc(doc(db, "rooms", roomCode), { status: "playing" });
-  } catch (e) { showError(e); }
+$("startBtn").onclick=async()=>{try{if(isHost())await updateDoc(doc(db,"rooms",roomCode),{status:"playing"});}catch(e){showError(e);}};
+$("spinBtn").onclick=async()=>{
+ try{if(!isHost())return;const active=players.filter(p=>p.online!==false);if(!active.length)return alert("Chưa có người chơi.");
+ const selected=active[Math.floor(Math.random()*active.length)];await updateDoc(doc(db,"rooms",roomCode),{lastSelectedUid:selected.uid,lastSelectedName:selected.name});}catch(e){showError(e);}
 };
-$("spinBtn").onclick = async () => {
-  try {
-    if (!isHost()) return;
-    const active = players.filter(p => p.online !== false);
-    if (!active.length) return alert("Chưa có người chơi.");
-    const selected = active[Math.floor(Math.random() * active.length)];
-    await updateDoc(doc(db, "rooms", roomCode), {
-      lastSelectedUid: selected.uid, lastSelectedName: selected.name
-    });
-  } catch (e) { showError(e); }
+$("drawBtn").onclick=async()=>{
+ try{if(!isHost())return;const card=cards[Math.floor(Math.random()*cards.length)];
+ await updateDoc(doc(db,"rooms",roomCode),{currentCard:{category:card[0],text:card[1]}});
+ if(card[0]==="🎲 MAY MẮN"&&card[1].includes("cộng 2 điểm")){const target=players.find(p=>p.uid===roomData?.lastSelectedUid)||players.find(p=>p.online!==false);if(target)await updateDoc(doc(db,"rooms",roomCode,"players",target.uid),{score:increment(2)});}
+ }catch(e){showError(e);}
 };
-$("drawBtn").onclick = async () => {
-  try {
-    if (!isHost()) return;
-    const card = cards[Math.floor(Math.random() * cards.length)];
-    await updateDoc(doc(db, "rooms", roomCode), {
-      currentCard: { category: card[0], text: card[1] }
-    });
-    if (card[0] === "🎲 MAY MẮN" && card[1].includes("cộng 2 điểm")) {
-      const target = players.find(p => p.uid === roomData?.lastSelectedUid) || players.find(p => p.online !== false);
-      if (target) await updateDoc(doc(db, "rooms", roomCode, "players", target.uid), { score: increment(2) });
-    }
-  } catch (e) { showError(e); }
+$("completeBtn").onclick=async()=>{try{if(!isHost())return;const target=players.find(p=>p.uid===roomData?.lastSelectedUid);if(!target)return alert("Hãy quay chọn người chơi trước.");await updateDoc(doc(db,"rooms",roomCode,"players",target.uid),{score:increment(1)});}catch(e){showError(e);}};
+$("skipBtn").onclick=async()=>{try{if(isHost())await updateDoc(doc(db,"rooms",roomCode),{currentCard:null});}catch(e){showError(e);}};
+$("sendBtn").onclick=async()=>{
+ try{if(!user||!roomCode)return;const text=$("chatInput").value.trim();if(!text)return;$("sendBtn").disabled=true;
+ await addDoc(collection(db,"rooms",roomCode,"messages"),{uid:user.uid,name:myName,text,createdAt:serverTimestamp()});$("chatInput").value="";
+ }catch(e){showError(e);}finally{$("sendBtn").disabled=false;}
 };
-$("completeBtn").onclick = async () => {
-  try {
-    if (!isHost()) return;
-    const target = players.find(p => p.uid === roomData?.lastSelectedUid);
-    if (!target) return alert("Hãy quay chọn người chơi trước.");
-    await updateDoc(doc(db, "rooms", roomCode, "players", target.uid), { score: increment(1) });
-  } catch (e) { showError(e); }
-};
-$("skipBtn").onclick = async () => {
-  try {
-    if (!isHost()) return;
-    await updateDoc(doc(db, "rooms", roomCode), { currentCard: null });
-  } catch (e) { showError(e); }
-};
-
-// Chat
-$("sendBtn").onclick = async () => {
-  try {
-    if (!user || !roomCode) return;
-    const text = $("chatInput").value.trim();
-    if (!text) return;
-    $("sendBtn").disabled = true;
-    await addDoc(collection(db, "rooms", roomCode, "messages"), {
-      uid: user.uid, name: myName, text, createdAt: serverTimestamp()
-    });
-    $("chatInput").value = "";
-  } catch (e) { showError(e); }
-  finally { $("sendBtn").disabled = false; }
-};
-$("chatInput").addEventListener("keydown", e => {
-  if (e.key === "Enter") $("sendBtn").click();
-});
-
-// Sao chép mã phòng
-$("copyBtn").onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(roomCode);
-    $("copyBtn").textContent = "✅ ĐÃ SAO CHÉP";
-    setTimeout(() => $("copyBtn").textContent = "📋 SAO CHÉP MÃ PHÒNG", 1800);
-  } catch {
-    alert("Mã phòng của bạn là: " + roomCode);
-  }
-};
-
-// Rời phòng
-$("leaveBtn").onclick = async () => {
-  try {
-    if (roomCode && user) {
-      await updateDoc(doc(db, "rooms", roomCode, "players", user.uid), { online: false });
-    }
-  } catch (e) {
-    console.warn("Không cập nhật được trạng thái rời phòng:", e);
-  }
-  showHome();
-};
+$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendBtn").click();});
+$("copyBtn").onclick=async()=>{try{await navigator.clipboard.writeText(roomCode);$("copyBtn").textContent="✅ ĐÃ SAO CHÉP";setTimeout(()=>$("copyBtn").textContent="📋 SAO CHÉP MÃ PHÒNG",1800);}catch{alert("Mã phòng của bạn là: "+roomCode);}};
+$("leaveBtn").onclick=async()=>{try{if(roomCode&&user)await updateDoc(doc(db,"rooms",roomCode,"players",user.uid),{online:false});}catch(e){console.warn(e);}showHome();};
 </script>
 </body>
 </html>
-'''
-
-path = Path("/mnt/data/index.html")
-path.write_text(html, encoding="utf-8")
-print(f"Đã tạo file: {path} ({len(html)} ký tự)")
