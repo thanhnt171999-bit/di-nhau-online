@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ĐI NHẬU ONLINE 🍻</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ padding:18px;
+ background:linear-gradient(135deg,#100d18,#291020,#111b35);
+ color:white;
+ font-family:Arial,sans-serif;
+ min-height:100vh;
+}
+
+.container{max-width:650px;margin:auto}
+
+header{text-align:center;padding:15px}
+
+h1{
+ color:#ffc83d;
+ font-size:36px;
+ text-shadow:0 0 20px orange;
+}
+
+.panel{
+ background:#ffffff12;
+ border:1px solid #ffffff25;
+ border-radius:18px;
+ padding:20px;
+ margin-bottom:16px;
+}
+
+input{
+ width:100%;
+ padding:14px;
+ border-radius:10px;
+ border:1px solid #ffffff30;
+ background:#171421;
+ color:white;
+ font-size:16px;
+ margin:8px 0;
+}
+
+button{
+ border:0;
+ border-radius:10px;
+ padding:14px;
+ font-size:15px;
+ font-weight:bold;
+ cursor:pointer;
+ margin:5px 0;
+}
+
+button:disabled{opacity:.5}
+
+.primary{background:#ffc83d;color:#251500;width:100%}
+.purple{background:#713bff;color:white}
+.green{background:#13b981;color:white}
+.red{background:#ed476f;color:white}
+
+.hidden{display:none!important}
+
+.room-code{
+ color:#ffc83d;
+ font-size:32px;
+ font-weight:bold;
+ letter-spacing:6px;
+ text-align:center;
+}
+
+.player{
+ display:flex;
+ justify-content:space-between;
+ background:#ffffff12;
+ padding:13px;
+ margin:7px 0;
+ border-radius:10px;
+}
+
+.card{
+ background:linear-gradient(135deg,#ffbc35,#ff683d);
+ color:#281500;
+ padding:30px 20px;
+ border-radius:18px;
+ text-align:center;
+ min-height:160px;
+}
+
+.card p{font-size:19px;font-weight:bold}
+
+.wheel{
+ font-size:80px;
+ text-align:center;
+}
+
+.chat-box{
+ height:200px;
+ overflow-y:auto;
+ background:#09081180;
+ border-radius:10px;
+ padding:12px;
+ margin-bottom:10px;
+ overflow-wrap:anywhere;
+}
+
+.chat-message{
+ padding:7px 0;
+ border-bottom:1px solid #ffffff12;
+}
+
+.chat-message strong{color:#ffc83d}
+
+.flex{display:flex;gap:8px}
+.flex input{flex:1;min-width:0}
+
+.small{color:#aaa;font-size:13px}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+<h1>🍻 ĐI NHẬU ONLINE</h1>
+<p>Hội tụ bạn bè - Vui hết nấc!</p>
+<p id="connection" class="small">Đang kết nối...</p>
+</header>
+
+<section id="home">
+
+<div class="panel">
+
+<h2>🍻 TẠO PHÒNG</h2>
+
+<input id="playerName"
+placeholder="Tên người chơi"
+maxlength="24">
+
+<button class="primary" id="createBtn" disabled>
+TẠO PHÒNG MỚI
+</button>
+
+<hr>
+
+<h2>🚪 THAM GIA PHÒNG</h2>
+
+<input id="roomCodeInput"
+placeholder="Nhập mã phòng"
+maxlength="6">
+
+<button class="primary" id="joinBtn" disabled>
+THAM GIA NGAY
+</button>
+
+</div>
+</section>
+
+<section id="game" class="hidden">
+
+<div class="panel">
+<h2>🏠 PHÒNG CHƠI</h2>
+
+<div class="room-code" id="roomCode"></div>
+
+<button class="primary" id="copyBtn">
+📋 SAO CHÉP MÃ PHÒNG
+</button>
+
+<p id="roomStatus" class="small"></p>
+</div>
+
+<div class="panel">
+<h2>👥 NGƯỜI CHƠI</h2>
+<div id="playersList"></div>
+</div>
+
+<div class="panel">
+<h2>🎡 VÒNG QUAY MAY MẮN</h2>
+
+<div class="wheel">🎡</div>
+
+<h2 id="selectedPlayer"
+style="text-align:center;color:#ffc83d">
+Chờ lựa chọn...
+</h2>
+</div>
+
+<div class="panel hidden" id="hostPanel">
+
+<h2>🎮 ĐIỀU KHIỂN TRÒ CHƠI</h2>
+
+<button class="green" id="startBtn">
+🚀 BẮT ĐẦU
+</button>
+
+<button class="purple" id="spinBtn">
+🎡 QUAY CHỌN NGƯỜI
+</button>
+
+<button class="primary" id="drawBtn">
+🎴 BỐC THẺ
+</button>
+
+<button class="green" id="completeBtn">
+🏆 HOÀN THÀNH (+1 ĐIỂM)
+</button>
+
+<button class="red" id="skipBtn">
+BỎ QUA
+</button>
+
+</div>
+
+<div class="panel">
+
+<h2>🎴 THỬ THÁCH</h2>
+
+<div class="card">
+<h2 id="cardCategory">🍻 SẴN SÀNG?</h2>
+<p id="cardText">Chờ chủ phòng bốc thẻ...</p>
+</div>
+
+</div>
+
+<div class="panel">
+
+<h2>🏆 BẢNG XẾP HẠNG</h2>
+<div id="ranking"></div>
+
+</div>
+
+<div class="panel">
+
+<h2>💬 CHAT TRỰC TUYẾN</h2>
+
+<div class="chat-box" id="chatBox"></div>
+
+<div class="flex">
+<input id="chatInput" placeholder="Nhập tin nhắn..." maxlength="300">
+<button class="purple" id="sendBtn">GỬI</button>
+</div>
+
+</div>
+
+<button class="red" id="leaveBtn" style="width:100%">
+RỜI PHÒNG
+</button>
+
+</section>
+</div>
+
+<script type="module">
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,signInAnonymously,onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+getFirestore,doc,getDoc,setDoc,updateDoc,
+collection,addDoc,query,orderBy,limit,
+onSnapshot,serverTimestamp,increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyCsl1Qtam9q2hBjJasHoUl_n9x4xCr52Vs",
+authDomain:"di-nhau-online.firebaseapp.com",
+projectId:"di-nhau-online",
+storageBucket:"di-nhau-online.firebasestorage.app",
+messagingSenderId:"230423160986",
+appId:"1:230423160986:web:1d20629b07441d8d10d723"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+let user=null;
+let roomCode=null;
+let myName="";
+let roomData=null;
+let players=[];
+
+let unsubRoom=null;
+let unsubPlayers=null;
+let unsubMessages=null;
+
+const $=id=>document.getElementById(id);
+
+const cards=[
+["😂 GIẢI TRÍ","Kể một câu chuyện hài hước nhất của bạn!"],
+["🎯 THỬ THÁCH","Hát một đoạn nhạc trong 10 giây!"],
+["❓ HỎI ĐÁP","Nếu được du lịch miễn phí, bạn muốn đến đâu?"],
+["🎲 MAY MẮN","Bạn được cộng 2 điểm!"],
+["😂 GIẢI TRÍ","Hãy giả giọng một người nổi tiếng!"],
+["🎯 THỬ THÁCH","Kể tên 5 món ăn Việt Nam trong 10 giây!"],
+["❓ HỎI ĐÁP","Ai trong nhóm hài hước nhất?"],
+["🎲 MAY MẮN","Chọn một người cùng nhận 1 điểm!"],
+["😂 GIẢI TRÍ","Nói một câu thả thính hài hước!"],
+["🎯 THỬ THÁCH","Đọc một câu bằng giọng MC truyền hình!"],
+["❓ HỎI ĐÁP","Kỷ niệm đáng nhớ nhất với hội bạn?"],
+["🎲 MAY MẮN","Bạn được quyền chọn người tiếp theo!"]
+];
+
+function error(e){
+console.error(e);
+alert("Có lỗi: "+e.message);
+}
+
+function isHost(){
+return roomData?.hostUid===user?.uid;
+}
+
+function randomCode(){
+const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+let code="";
+for(let i=0;i<6;i++){
+code+=chars[Math.floor(Math.random()*chars.length)];
+}
+return code;
+}
+
+// ĐĂNG NHẬP
+
+signInAnonymously(auth).catch(error);
+
+onAuthStateChanged(auth,u=>{
+user=u;
+
+if(u){
+$("connection").textContent="🟢 Đã kết nối";
+$("createBtn").disabled=false;
+$("joinBtn").disabled=false;
+}
+});
+
+// TẠO PHÒNG
+
+$("createBtn").onclick=async()=>{
+
+try{
+
+if(!user)return;
+
+myName=$("playerName").value.trim();
+
+if(!myName){
+alert("Nhập tên người chơi!");
+return;
+}
+
+
+  
+
+let code;
+
+do{
+code=randomCode();
+}while((await getDoc(doc(db,"rooms",code))).exists());
+
+await setDoc(doc(db,"rooms",code),{
+code,
+hostUid:user.uid,
+hostName:myName,
+status:"waiting",
+createdAt:serverTimestamp(),
+currentCard:null,
+lastSelectedUid:null,
+lastSelectedName:""
+});
