@@ -330,15 +330,25 @@ return code;
 
 // ĐĂNG NHẬP
 
-signInAnonymously(auth).catch(error);
+signInAnonymously(auth).catch(e=>{
+console.error(e);
+
+$("connection").textContent="❌ "+e.code;
+
+alert(
+"Firebase lỗi: "+e.code+"\n"+e.message
+);
+});
 
 onAuthStateChanged(auth,u=>{
 user=u;
 
 if(u){
-$("connection").textContent="🟢 Đã kết nối";
+$("connection").textContent="🟢 Đã kết nối Firebase";
 $("createBtn").disabled=false;
 $("joinBtn").disabled=false;
+}else{
+$("connection").textContent="🔄 Đang đăng nhập...";
 }
 });
 
